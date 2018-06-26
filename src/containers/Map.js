@@ -203,11 +203,12 @@ class Map {
             "XML",
           ];
           const suggestions = [];
-          for (let i = 0; i < choices.length; i++)
+          for (let i = 0; i < choices.length; i++) {
             if (~choices[i].toLowerCase().indexOf(termLC)) {
               suggestions.push(choices[i]);
               suggest(suggestions);
             }
+          }
         },
       });
     }
