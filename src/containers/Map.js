@@ -1,5 +1,6 @@
 import fetchJsonp from "fetch-jsonp";
 import mustache from "mustache";
+// https://goodies.pixabay.com/javascript/auto-complete/demo.html
 import AutoComplete from "javascript-autocomplete";
 import { init } from "../sgis/init";
 import { TileLayer } from "../sgis/layers/TileLayer";
@@ -168,12 +169,45 @@ class Map {
         selector: "#autocomplete-map-widget",
         minChars: 1,
         source: (term, suggest) => {
-          term = term.toLowerCase();
-          var choices = ['ActionScript', 'AppleScript', 'Asp', 'Assembly', 'BASIC', 'Batch', 'C', 'C++', 'CSS', 'Clojure', 'COBOL', 'ColdFusion', 'Erlang', 'Fortran', 'Groovy', 'Haskell', 'HTML', 'Java', 'JavaScript', 'Lisp', 'Perl', 'PHP', 'PowerShell', 'Python', 'Ruby', 'Scala', 'Scheme', 'SQL', 'TeX', 'XML'];
-          var suggestions = [];
-          for (let i=0;i<choices.length;i++)
-            if (~choices[i].toLowerCase().indexOf(term)) suggestions.push(choices[i]);
-          suggest(suggestions);
+          const termLC = term.toLowerCase();
+          const choices = [
+            "ActionScript",
+            "AppleScript",
+            "Asp",
+            "Assembly",
+            "BASIC",
+            "Batch",
+            "C",
+            "C++",
+            "CSS",
+            "Clojure",
+            "COBOL",
+            "ColdFusion",
+            "Erlang",
+            "Fortran",
+            "Groovy",
+            "Haskell",
+            "HTML",
+            "Java",
+            "JavaScript",
+            "Lisp",
+            "Perl",
+            "PHP",
+            "PowerShell",
+            "Python",
+            "Ruby",
+            "Scala",
+            "Scheme",
+            "SQL",
+            "TeX",
+            "XML",
+          ];
+          const suggestions = [];
+          for (let i = 0; i < choices.length; i++)
+            if (~choices[i].toLowerCase().indexOf(termLC)) {
+              suggestions.push(choices[i]);
+              suggest(suggestions);
+            }
         },
       });
     }
