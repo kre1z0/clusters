@@ -1,5 +1,6 @@
 import fetchJsonp from "fetch-jsonp";
 import mustache from "mustache";
+import AutoComplete from "javascript-autocomplete";
 import { init } from "../sgis/init";
 import { TileLayer } from "../sgis/layers/TileLayer";
 import { PointFeature } from "../sgis/features/PointFeature";
@@ -13,6 +14,7 @@ import { GridClusterProvider } from "../sgis/layers/clusterProviders/GridCluster
 import yarmarkaIcon from "../icons/Yarmarka.svg";
 import yarmarkaIconSelected from "../icons/Yarmarka_selected.svg";
 import { zoomPanelTemplate } from "../templates/zoom-plugin-template";
+import { AutoCompleteTemplate } from "../templates/autocomplete-template";
 import { errorTemplate } from "../templates/error-template";
 import { licenseTepmlate } from "../templates/license-template";
 import Popup from "../components/Popup";
@@ -155,6 +157,28 @@ class Map {
     }
   }
 
+  initAutoComplete() {
+    const wrapper = document.createElement("div");
+    const autoComplete = mustache.render(AutoCompleteTemplate);
+    if (this.mapNode) {
+      wrapper.classList.add(styles.autocompleteContainer);
+      wrapper.innerHTML = autoComplete;
+      this.mapNode.appendChild(wrapper);
+      const initAutoComplete = new AutoComplete({
+        selector: "#autocomplete-map-widget",
+        minChars: 1,
+        source: (term, suggest) => {
+          term = term.toLowerCase();
+          var choices = ['ActionScript', 'AppleScript', 'Asp', 'Assembly', 'BASIC', 'Batch', 'C', 'C++', 'CSS', 'Clojure', 'COBOL', 'ColdFusion', 'Erlang', 'Fortran', 'Groovy', 'Haskell', 'HTML', 'Java', 'JavaScript', 'Lisp', 'Perl', 'PHP', 'PowerShell', 'Python', 'Ruby', 'Scala', 'Scheme', 'SQL', 'TeX', 'XML'];
+          var suggestions = [];
+          for (let i=0;i<choices.length;i++)
+            if (~choices[i].toLowerCase().indexOf(term)) suggestions.push(choices[i]);
+          suggest(suggestions);
+        },
+      });
+    }
+  }
+
   init() {
     this.fetchData().then(data => {
       const resolution = 9595;
@@ -207,6 +231,7 @@ class Map {
       this.map = map;
       this._layer = featureClusterLayer;
       this.initZoomPlugin();
+      this.initAutoComplete();
     });
   }
 }
