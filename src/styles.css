@@ -32,7 +32,7 @@
     height: calc(100% - 60px);
     max-height: 354px;
     position: absolute;
-    top: 32px;
+    top: 42px;
     left: 32px;
     width: 400px;
     overflow: auto;
@@ -281,18 +281,20 @@
 .autocompleteContainer {
     position: absolute;
     top: 10px;
-    left: 10px;
+    left: 32px;
 }
 
 .autocomplete {
-    border-radius: 4px;
+    width: 244px;
+    border: none;
+    outline: none;
+    padding: 4px 8px;
+    box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.11);
 }
 
 :global(.autocomplete-suggestions) {
     text-align: left;
     cursor: default;
-    border: 1px solid #ccc;
-    border-top: 0;
     background: #fff;
     box-shadow: -1px 1px 3px rgba(0, 0, 0, .1);
 
@@ -319,7 +321,7 @@
 
 :global(.autocomplete-suggestion) b {
     font-weight: normal;
-    color: #1f8dd6;
+    color: rgb(255, 170, 0);
 }
 
 :global(.autocomplete-suggestion.selected) {

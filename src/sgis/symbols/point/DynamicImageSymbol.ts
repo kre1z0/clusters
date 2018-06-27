@@ -60,6 +60,7 @@ export class DynamicImageSymbol extends DynamicPointSymbol {
 
         node.style.transformOrigin = `${this.anchorPoint[0]}px ${this.anchorPoint[1]}px`;
         node.style.transform = `translate(-${this.anchorPoint[0]}px,-${this.anchorPoint[1]}px) rotate(${this.angle}rad)`;
+        node.style.cursor = 'pointer';
 
         if (this.width > 0) node.width = this.width;
         if (this.height > 0) node.height = this.height;

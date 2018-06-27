@@ -1,7 +1,7 @@
-import { DynamicPointSymbol } from './Symbol';
-import { setCssClasses } from '../utils/utils';
-import { Offset } from '../baseTypes';
-import { FeatureGroup } from '../features/FeatureGroup';
+import {DynamicPointSymbol} from "./Symbol";
+import {setCssClasses} from "../utils/utils";
+import {Offset} from "../baseTypes";
+import {FeatureGroup} from "../features/FeatureGroup";
 
 const DEFAULT_CLASS_NAME = 'sGis-dynamicCluster';
 const DEFAULT_STYLE = `
@@ -13,9 +13,9 @@ const DEFAULT_STYLE = `
     justify-content: center;
     border-radius: 50%;
     box-sizing: border-box;
-    cursor: default;
+    cursor: pointer;
 `;
-setCssClasses({ [DEFAULT_CLASS_NAME]: DEFAULT_STYLE });
+setCssClasses({[DEFAULT_CLASS_NAME]: DEFAULT_STYLE});
 
 export interface DynamicClusterSymbolParams {
     font?: string;
@@ -26,7 +26,6 @@ export interface DynamicClusterSymbolParams {
     borderWidth?: number;
     borderColor?: string;
     offset?: Offset;
-    className?: string;
 }
 
 export class ClusterSymbol extends DynamicPointSymbol {
@@ -37,7 +36,6 @@ export class ClusterSymbol extends DynamicPointSymbol {
     fontColor: string;
     borderWidth: number;
     borderColor: string;
-    className: any;
 
     constructor(
         {
@@ -49,13 +47,9 @@ export class ClusterSymbol extends DynamicPointSymbol {
             borderWidth = 6,
             borderColor = '#89CCF1',
             offset = [-size / 2, -size / 2],
-            className = '',
         }: DynamicClusterSymbolParams = {},
     ) {
-        super({ offset });
-        this.className = className
-            ? [DEFAULT_CLASS_NAME].concat(className)
-            : [DEFAULT_CLASS_NAME];
+        super({offset});
 
         this.font = font;
         this.size = size;
@@ -70,7 +64,7 @@ export class ClusterSymbol extends DynamicPointSymbol {
         const node = document.createElement('div');
         const size = this.size - this.outlineWidth * 2;
 
-        node.classList.add(...this.className);
+        node.className = DEFAULT_CLASS_NAME;
         node.style.width = `${size}px`;
         node.style.height = `${size}px`;
         node.style.color = this.fontColor;

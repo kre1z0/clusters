@@ -25,7 +25,7 @@ export class FeatureGroup extends Feature implements IPoint {
             if (this.crs.equals(feature.crs)) return feature;
             else {
                 const projected = feature.projectTo(this.crs);
-                const assigned  = Object.assign(feature, projected);
+                const assigned = Object.assign(feature, projected);
                 return assigned;
             }
         });

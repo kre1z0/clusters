@@ -21,7 +21,11 @@ import { licenseTepmlate } from "../templates/license-template";
 import Popup from "../components/Popup";
 import styles from "../styles.css";
 
-const apiUrl = "https://msp.everpoint.ru/";
+const isProduction = process.env.NODE_ENV === "production";
+
+const apiUrl = isProduction
+  ? "https://navigator.smbn.ru/"
+  : "https://msp.everpoint.ru/";
 
 class Map {
   constructor() {
@@ -43,10 +47,11 @@ class Map {
     this.onChangeCard = this.onChangeCard.bind(this);
     this.clearSelection = this.clearSelection.bind(this);
     this.setSelection = this.setSelection.bind(this);
+    this.subjectChange = this.subjectChange.bind(this);
   }
 
   fetchData() {
-    return fetchJsonp(`${apiUrl}static/fair.jsonp`, {
+    return fetchJsonp(`${apiUrl}api/service/fair.jsonp`, {
       jsonpCallbackFunction: "callback",
     })
       .then(res => res.json())
@@ -75,8 +80,10 @@ class Map {
     this.selectedFeature = feature;
     this.selectedFeature.__dynamicSymbolRender = null;
     if (feature.features.length > 1) {
+      this._selectedClusterSymbol.getNode(feature).style.cursor = "default";
       feature.setTempSymbol(this._selectedClusterSymbol);
     } else {
+      this._selectedSymbol.getNode(feature).style.cursor = "default";
       feature.setTempSymbol(this._selectedSymbol);
     }
     this._layer.redraw();
@@ -158,7 +165,15 @@ class Map {
     }
   }
 
-  initAutoComplete() {
+  subjectChange(e) {
+    const value = e.target.value;
+    if (value === "") {
+      this.subjectFiltering();
+    }
+  }
+
+  initAutoComplete(subjects = []) {
+    const items = subjects.map(({ name }) => name);
     const wrapper = document.createElement("div");
     const autoComplete = mustache.render(AutoCompleteTemplate);
     if (this.mapNode) {
@@ -168,50 +183,64 @@ class Map {
       const initAutoComplete = new AutoComplete({
         selector: "#autocomplete-map-widget",
         minChars: 1,
+        onSelect: (event, term, item) => {
+          const isContain = items.some(subject => term === subject);
+          if (isContain) {
+            const selectedId = subjects.find(({ name }) => name === term).id;
+            event.target.value = term;
+            this.subjectFiltering(selectedId);
+          }
+        },
         source: (term, suggest) => {
           const termLC = term.toLowerCase();
-          const choices = [
-            "ActionScript",
-            "AppleScript",
-            "Asp",
-            "Assembly",
-            "BASIC",
-            "Batch",
-            "C",
-            "C++",
-            "CSS",
-            "Clojure",
-            "COBOL",
-            "ColdFusion",
-            "Erlang",
-            "Fortran",
-            "Groovy",
-            "Haskell",
-            "HTML",
-            "Java",
-            "JavaScript",
-            "Lisp",
-            "Perl",
-            "PHP",
-            "PowerShell",
-            "Python",
-            "Ruby",
-            "Scala",
-            "Scheme",
-            "SQL",
-            "TeX",
-            "XML",
-          ];
-          const suggestions = [];
-          for (let i = 0; i < choices.length; i++) {
-            if (~choices[i].toLowerCase().indexOf(termLC)) {
-              suggestions.push(choices[i]);
-              suggest(suggestions);
-            }
-          }
+          const filteredItems = items.filter(
+            item => item && item.toLowerCase().search(termLC) !== -1,
+          );
+          suggest(filteredItems);
         },
       });
     }
+    const input = document.getElementById("autocomplete-map-widget");
+    input.addEventListener("input", this.subjectChange);
+  }
+
+  subjectFiltering(subjectId) {
+    if (subjectId) {
+      const filteredData = this.data.filter(
+        ({ properties: { subject_id } }) => subject_id === subjectId,
+      );
+      this.initLayer(filteredData);
+    } else {
+      this.initLayer(this.data);
+    }
+  }
+
+  initLayer(data) {
+    if (this._layer) {
+      this.map.removeLayer(this._layer);
+    }
+    const symbol = new DynamicImageSymbol({
+      source: yarmarkaIcon,
+      width: 40,
+      height: 51,
+      anchorPoint: [40 / 2, 51],
+    });
+    const featureClusterLayer = new ClusterLayer({
+      gridClusterProvider: new GridClusterProvider(),
+      clusterSymbol: new ClusterSymbol({ borderColor: "#668A2C" }),
+      callback: this.onFeatureClick,
+    });
+    const features = data.map(({ geometry, properties }) => {
+      const feature = new PointFeature(geometry.coordinates, {
+        symbol,
+        crs: wgs84,
+      });
+      feature.properties = properties;
+      return feature;
+    });
+    featureClusterLayer.add(features);
+    this.map.addLayer(featureClusterLayer);
+    this._layer = featureClusterLayer;
   }
 
   init() {
@@ -234,39 +263,12 @@ class Map {
       const licenseWrapper = document.createElement("div");
       licenseWrapper.innerHTML = mustache.render(licenseTepmlate);
       this.mapNode.appendChild(licenseWrapper);
-
-      const symbol = new DynamicImageSymbol({
-        source: yarmarkaIcon,
-        width: 40,
-        height: 51,
-        anchorPoint: [40 / 2, 51],
-      });
-
-      const featureClusterLayer = new ClusterLayer({
-        gridClusterProvider: new GridClusterProvider(144),
-        clusterSymbol: new ClusterSymbol({ borderColor: "#668A2C" }),
-        callback: this.onFeatureClick,
-      });
-
-      const features = data.features.features.map(
-        ({ geometry, properties }) => {
-          const feature = new PointFeature(geometry.coordinates, {
-            symbol,
-            crs: wgs84,
-          });
-          feature.properties = properties;
-          return feature;
-        },
-      );
-
-      featureClusterLayer.add(features);
-
-      map.addLayer(featureClusterLayer);
-
+      this.data = data.features.features;
       this.map = map;
-      this._layer = featureClusterLayer;
+
+      this.initLayer(data.features.features);
       this.initZoomPlugin();
-      this.initAutoComplete();
+      this.initAutoComplete(data.subjects);
     });
   }
 }

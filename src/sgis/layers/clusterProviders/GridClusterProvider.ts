@@ -4,9 +4,6 @@ import {Feature} from "../../features/Feature";
 import {error} from "../../utils/utils";
 
 export interface IClusterProvider {
-    features?: Feature[];
-    size: number;
-    resolution?: number;
     getClusters(bbox: Bbox, resolution: number): FeatureGroup[];
     add(features: Feature | Feature[]): void;
     remove(features: Feature | Feature[]): void;
@@ -15,13 +12,13 @@ export interface IClusterProvider {
 
 export class GridClusterProvider implements IClusterProvider {
     readonly _features: Feature[];
-    size: number;
+    readonly _size: number;
     private _resolution: number;
     private _cache: FeatureGroup[];
 
-    constructor(size = 44) {
+    constructor(size = 88) {
         this._features = [];
-        this.size = size;
+        this._size = size;
         this._resolution = 0;
         this._cache = [];
     }
@@ -30,7 +27,7 @@ export class GridClusterProvider implements IClusterProvider {
         if (this._resolution !== resolution) {
             this._cache = [];
             this._resolution = resolution;
-            const size = this.size * resolution;
+            const size = this._size * resolution;
 
             const groups: { [key: string]: Feature[] } = {};
 
