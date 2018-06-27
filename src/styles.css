@@ -32,7 +32,7 @@
     height: calc(100% - 60px);
     max-height: 354px;
     position: absolute;
-    top: 42px;
+    top: 50px;
     left: 32px;
     width: 400px;
     overflow: auto;
@@ -288,7 +288,7 @@
     width: 244px;
     border: none;
     outline: none;
-    padding: 4px 8px;
+    padding: 7px 10px;
     box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.11);
 }
 

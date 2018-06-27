@@ -225,12 +225,14 @@ class Map {
       height: 51,
       anchorPoint: [40 / 2, 51],
     });
+
     const featureClusterLayer = new ClusterLayer({
       gridClusterProvider: new GridClusterProvider(),
       clusterSymbol: new ClusterSymbol({ borderColor: "#668A2C" }),
       callback: this.onFeatureClick,
     });
-    const features = data.map(({ geometry, properties }) => {
+
+    const features = data.map( ({ geometry, properties }) => {
       const feature = new PointFeature(geometry.coordinates, {
         symbol,
         crs: wgs84,
