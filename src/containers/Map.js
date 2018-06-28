@@ -18,14 +18,17 @@ import { zoomPanelTemplate } from "../templates/zoom-plugin-template";
 import { AutoCompleteTemplate } from "../templates/autocomplete-template";
 import { errorTemplate } from "../templates/error-template";
 import { licenseTepmlate } from "../templates/license-template";
+import { NotificationTemplate } from "../templates/notification-template";
 import Popup from "../components/Popup";
 import styles from "../styles.css";
+import { removeFadeOut } from "../utils/node";
 
 const isProduction = process.env.NODE_ENV === "production";
 
-const apiUrl = isProduction
-  ? "https://navigator.smbn.ru/"
-  : "https://msp.everpoint.ru/";
+// const apiUrl = isProduction
+//   ? "https://navigator.smbn.ru/"
+//   : "https://msp.everpoint.ru/";
+const apiUrl = "https://msp.everpoint.ru/";
 
 class Map {
   constructor() {
@@ -41,6 +44,7 @@ class Map {
       height: 51,
       anchorPoint: [40 / 2, 51],
     });
+    this.onMapclick = this.onMapclick.bind(this);
     this.mapNode.addEventListener("click", this.onMapclick);
     this._features = [];
     this._selectedObject = 0;
@@ -49,6 +53,7 @@ class Map {
     this.clearSelection = this.clearSelection.bind(this);
     this.setSelection = this.setSelection.bind(this);
     this.subjectChange = this.subjectChange.bind(this);
+    this.clearSubjects = this.clearSubjects.bind(this);
   }
 
   fetchData() {
@@ -74,6 +79,7 @@ class Map {
       this.selectedFeature.__dynamicSymbolRender = null;
       this._layer.redraw();
       this.selectedFeature = null;
+      this.popup = null;
     }
   }
 
@@ -170,6 +176,21 @@ class Map {
     const value = e.target.value;
     if (value === "") {
       this.subjectFiltering();
+      if (this.popup) {
+        this.popup.closePopup();
+        this.popup = null;
+      }
+    }
+  }
+
+  clearSubjects() {
+    if (this.input && this.input.value) {
+      this.input.value = "";
+      this.subjectFiltering();
+      if (this.popup) {
+        this.popup.closePopup();
+        this.popup = null;
+      }
     }
   }
 
@@ -178,19 +199,28 @@ class Map {
     const wrapper = document.createElement("div");
     const autoComplete = mustache.render(AutoCompleteTemplate);
 
+    const closeBtn = document.createElement("div");
+    closeBtn.classList.add(styles.closeBtn);
+    closeBtn.classList.add(styles.inputCloseBtn);
+    closeBtn.innerHTML = "&#10005;";
+    closeBtn.addEventListener("click", this.clearSubjects);
+
     if (this.mapNode) {
       wrapper.classList.add(styles.autocompleteContainer);
       wrapper.innerHTML = autoComplete;
+      wrapper.appendChild(closeBtn);
       this.mapNode.appendChild(wrapper);
       this.autoComplete = new AutoComplete({
         selector: "#autocomplete-map-widget",
         minChars: 0,
+        delay: 400,
         onSelect: (event, term, item) => {
           const isContain = items.some(subject => term === subject);
           if (isContain) {
             const selectedId = subjects.find(({ name }) => name === term).id;
             if (this.selectedSubjectId !== selectedId && this.popup) {
               this.popup.closePopup();
+              this.popup = null;
             }
             this.selectedSubjectId = selectedId;
             event.target.value = term;
@@ -218,15 +248,16 @@ class Map {
         },
       });
     }
-    const input = document.getElementById("autocomplete-map-widget");
-    input.addEventListener("input", this.subjectChange);
+    this.input = document.getElementById("autocomplete-map-widget");
+    this.input.addEventListener("input", this.subjectChange);
   }
 
   onMapclick(e) {
-    const input = document.getElementById("autocomplete-map-widget");
-    const inside = input.contains(e.target);
-    if (!inside) {
-      input.blur();
+    if (this.input) {
+      const inside = this.input.contains(e.target);
+      if (!inside) {
+        this.input.blur();
+      }
     }
   }
 
@@ -258,14 +289,40 @@ class Map {
     this.map.setPosition(position);
   }
 
+  renderNotification(text) {
+    const wrapper = document.createElement("div");
+    const notification = mustache.render(NotificationTemplate, { text });
+    if (this.mapNode) {
+      wrapper.innerHTML = notification;
+      this.mapNode.appendChild(wrapper);
+    }
+  }
+
+  removeNotification() {
+    if (this.mapNode) {
+      const notification = this.mapNode.querySelector(
+        `.${styles.notification}`,
+      );
+      if (notification) {
+        removeFadeOut(notification, 400);
+      }
+    }
+  }
+
   subjectFiltering(subjectId) {
     if (subjectId) {
       const filteredData = this.data.filter(
         ({ properties: { subject_id } }) => subject_id === subjectId,
       );
+      if (filteredData.length < 1) {
+        this.renderNotification("В субъекте ярмарки не проводятся");
+      } else {
+        this.removeNotification();
+      }
       this.initLayer(filteredData);
     } else {
       this.initLayer(this.data);
+      this.removeNotification();
     }
   }
 

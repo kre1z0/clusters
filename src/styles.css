@@ -73,26 +73,6 @@
     }
 }
 
-@media (max-height: 674px) {
-    .popup {
-        min-height: 0;
-    }
-}
-
-@media (max-width: 505px) {
-    .popup {
-        width: 280px;
-        top: 10px;
-        left: 10px;
-    }
-}
-
-@media (max-width: 350px) {
-    .popup {
-        width: 250px;
-    }
-}
-
 .closeBtn {
     top: 15px;
     right: 15px;
@@ -109,6 +89,12 @@
     cursor: pointer;
     color: #9b9b9b;
     transition: all 0.4s ease;
+}
+
+.inputCloseBtn {
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .closeBtn:hover {
@@ -179,8 +165,7 @@
 }
 
 .popupContent::-webkit-scrollbar-thumb,
-:global(.autocomplete-suggestions::-webkit-scrollbar-thumb)
-{
+:global(.autocomplete-suggestions::-webkit-scrollbar-thumb) {
     min-width: 7.692em;
     min-height: 7.692em;
     background: #e6e6e6;
@@ -189,14 +174,12 @@
 }
 
 .popupContent::-webkit-scrollbar-thumb:hover,
-:global(.autocomplete-suggestions::-webkit-scrollbar-thumb:hover)
-{
+:global(.autocomplete-suggestions::-webkit-scrollbar-thumb:hover) {
     background: #d7d7d7;
 }
 
 .popupContent::-webkit-scrollbar-thumb:active,
-:global(.autocomplete-suggestions::-webkit-scrollbar-thumb:active)
-{
+:global(.autocomplete-suggestions::-webkit-scrollbar-thumb:active) {
     background: #cdcdcd;
 }
 
@@ -293,6 +276,10 @@
     box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.11);
 }
 
+.autocomplete::-ms-clear {
+    display: none;
+}
+
 :global(.autocomplete-suggestions) {
     text-align: left;
     cursor: default;
@@ -327,4 +314,44 @@
 
 :global(.autocomplete-suggestion.selected) {
     background: #f0f0f0;
+}
+
+.notification {
+    background-color: #fff;
+    box-sizing: border-box;
+    width: 400px;
+    padding: 7px 10px;
+    top: 50px;
+    left: 32px;
+    position: absolute;
+    font-size: 13px;
+    color: #ff9d1c;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.11);
+}
+
+@media (max-height: 674px) {
+    .popup {
+        min-height: 0;
+    }
+}
+
+@media (max-width: 505px) {
+    .popup,
+    .autocomplete,
+    .notification {
+        width: 280px;
+        left: 10px;
+    }
+}
+
+@media (max-width: 350px) {
+    .popup,
+    .autocomplete,
+    .notification {
+        width: 250px;
+    }
 }

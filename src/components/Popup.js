@@ -4,6 +4,7 @@ import {
 } from "../templates/popup-template";
 import styles from "../styles.css";
 import mustache from "mustache";
+import { removeFadeOut } from '../utils/node';
 
 class Popup {
   constructor({
@@ -24,10 +25,7 @@ class Popup {
   }
 
   closePopup() {
-    this.popup.classList.add(styles.fadeOut);
-    setTimeout(() => {
-      this.container.removeChild(this.popup);
-    }, 400);
+    removeFadeOut(this.popup, 400);
     this.closePopupCallback();
   }
 
