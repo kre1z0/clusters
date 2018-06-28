@@ -41,6 +41,7 @@ class Map {
       height: 51,
       anchorPoint: [40 / 2, 51],
     });
+    this.mapNode.addEventListener("click", this.onMapclick);
     this._features = [];
     this._selectedObject = 0;
     this.onFeatureClick = this.onFeatureClick.bind(this);
@@ -127,10 +128,10 @@ class Map {
 
       if (prevPopup) {
         this.mapNode.removeChild(prevPopup);
-        this.popup = new Popup(popupOptions).renderPopup();
+        this.popup = new Popup(popupOptions);
       } else {
         popupOptions.animationContent = false;
-        this.popup = new Popup(popupOptions).renderPopup();
+        this.popup = new Popup(popupOptions);
       }
     }
   }
@@ -176,32 +177,85 @@ class Map {
     const items = subjects.map(({ name }) => name);
     const wrapper = document.createElement("div");
     const autoComplete = mustache.render(AutoCompleteTemplate);
+
     if (this.mapNode) {
       wrapper.classList.add(styles.autocompleteContainer);
       wrapper.innerHTML = autoComplete;
       this.mapNode.appendChild(wrapper);
-      const initAutoComplete = new AutoComplete({
+      this.autoComplete = new AutoComplete({
         selector: "#autocomplete-map-widget",
-        minChars: 1,
+        minChars: 0,
         onSelect: (event, term, item) => {
           const isContain = items.some(subject => term === subject);
           if (isContain) {
             const selectedId = subjects.find(({ name }) => name === term).id;
+            if (this.selectedSubjectId !== selectedId && this.popup) {
+              this.popup.closePopup();
+            }
+            this.selectedSubjectId = selectedId;
             event.target.value = term;
             this.subjectFiltering(selectedId);
           }
         },
         source: (term, suggest) => {
           const termLC = term.toLowerCase();
-          const filteredItems = items.filter(
-            item => item && item.toLowerCase().search(termLC) !== -1,
-          );
-          suggest(filteredItems);
+          const selecteSubject =
+            subjects && subjects.find(({ name }) => name === term);
+
+          if (
+            selecteSubject &&
+            selecteSubject.id &&
+            this.selectedSubjectId &&
+            (selecteSubject && selecteSubject.id) === this.selectedSubjectId
+          ) {
+            suggest([]);
+          } else {
+            const filteredItems = items.filter(
+              item => item && item.toLowerCase().includes(termLC),
+            );
+            suggest(filteredItems);
+          }
         },
       });
     }
     const input = document.getElementById("autocomplete-map-widget");
     input.addEventListener("input", this.subjectChange);
+  }
+
+  onMapclick(e) {
+    const input = document.getElementById("autocomplete-map-widget");
+    const inside = input.contains(e.target);
+    if (!inside) {
+      input.blur();
+    }
+  }
+
+  zoomTo(features) {
+    const ADJ_K = 1.2;
+
+    let xMin = Number.MAX_VALUE;
+    let yMin = Number.MAX_VALUE;
+    let xMax = Number.MIN_VALUE;
+    let yMax = Number.MIN_VALUE;
+    features.forEach(feature => {
+      xMin = Math.min(xMin, feature.bbox.xMin);
+      yMin = Math.min(yMin, feature.bbox.yMin);
+      xMax = Math.max(xMax, feature.bbox.xMax);
+      yMax = Math.max(yMax, feature.bbox.yMax);
+    });
+    console.info("--> ggwp", (xMin + xMax) / 2, (yMin + yMax) / 2);
+    const position = new Point(
+      [(xMin + xMax) / 2, (yMin + yMax) / 2],
+      this.map.crs,
+    );
+
+    // const resolutionX =
+    //   bbox.width / this._sp.painter.width * ADJ_K;
+    // const resolutionY =
+    //   bbox.height / this._sp.painter.height * ADJ_K;
+    // const resolution = Math.max(resolutionX, resolutionY, 1);
+    this.map.setResolution(8000);
+    this.map.setPosition(position);
   }
 
   subjectFiltering(subjectId) {
@@ -232,7 +286,7 @@ class Map {
       callback: this.onFeatureClick,
     });
 
-    const features = data.map( ({ geometry, properties }) => {
+    const features = data.map(({ geometry, properties }) => {
       const feature = new PointFeature(geometry.coordinates, {
         symbol,
         crs: wgs84,
@@ -240,9 +294,11 @@ class Map {
       feature.properties = properties;
       return feature;
     });
+
     featureClusterLayer.add(features);
     this.map.addLayer(featureClusterLayer);
     this._layer = featureClusterLayer;
+    // this.zoomTo(features);
   }
 
   init() {

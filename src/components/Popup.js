@@ -20,6 +20,7 @@ class Popup {
     this.closePopup = this.closePopup.bind(this);
     this.closePopupCallback = closePopupCallback;
     this.onChangeCard = onChangeCard;
+    this.renderPopup();
   }
 
   closePopup() {

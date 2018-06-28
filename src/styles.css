@@ -285,7 +285,8 @@
 }
 
 .autocomplete {
-    width: 244px;
+    box-sizing: border-box;
+    width: 400px;
     border: none;
     outline: none;
     padding: 7px 10px;
