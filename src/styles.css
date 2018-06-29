@@ -224,11 +224,10 @@
 .popupFooter {
     border-top: 1px solid #ededed;
     margin-top: auto;
-    padding: 0 144px;
     display: flex;
     height: 44px;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
 }
 
 .prev, .next {
@@ -257,11 +256,14 @@
 }
 
 .amount {
+    text-align: center;
+    min-width: 60px;
     user-select: none;
     font-size: 13px;
 }
 
 .autocompleteContainer {
+    width: 400px;
     position: absolute;
     top: 10px;
     left: 32px;
@@ -269,7 +271,7 @@
 
 .autocomplete {
     box-sizing: border-box;
-    width: 400px;
+    width: 100%;
     border: none;
     outline: none;
     padding: 7px 10px;
@@ -341,7 +343,7 @@
 
 @media (max-width: 505px) {
     .popup,
-    .autocomplete,
+    .autocompleteContainer,
     .notification {
         width: 280px;
         left: 10px;
@@ -350,7 +352,7 @@
 
 @media (max-width: 350px) {
     .popup,
-    .autocomplete,
+    .autocompleteContainer,
     .notification {
         width: 250px;
     }

@@ -30,6 +30,9 @@ const isProduction = process.env.NODE_ENV === "production";
 //   : "https://msp.everpoint.ru/";
 const apiUrl = "https://msp.everpoint.ru/";
 
+const iconWidth = 40;
+const iconHeight = 49.6;
+
 class Map {
   constructor() {
     this.init();
@@ -40,9 +43,9 @@ class Map {
     });
     this._selectedSymbol = new DynamicImageSymbol({
       source: yarmarkaIconSelected,
-      width: 40,
-      height: 51,
-      anchorPoint: [40 / 2, 51],
+      width: iconWidth,
+      height: iconHeight,
+      anchorPoint: [iconWidth / 2, iconHeight],
     });
     this.onMapclick = this.onMapclick.bind(this);
     this.mapNode.addEventListener("click", this.onMapclick);
@@ -330,11 +333,12 @@ class Map {
     if (this._layer) {
       this.map.removeLayer(this._layer);
     }
+
     const symbol = new DynamicImageSymbol({
       source: yarmarkaIcon,
-      width: 40,
-      height: 51,
-      anchorPoint: [40 / 2, 51],
+      width: iconWidth,
+      height: iconHeight,
+      anchorPoint: [iconWidth / 2, iconHeight],
     });
 
     const featureClusterLayer = new ClusterLayer({
