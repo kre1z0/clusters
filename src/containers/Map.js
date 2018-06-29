@@ -61,6 +61,7 @@ class Map {
 
   fetchData() {
     return fetchJsonp(`${apiUrl}api/service/fair.jsonp`, {
+      timeout: 30000,
       jsonpCallbackFunction: "callback",
     })
       .then(res => res.json())
