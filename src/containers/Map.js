@@ -25,10 +25,10 @@ import { removeFadeOut } from "../utils/node";
 
 const isProduction = process.env.NODE_ENV === "production";
 
-// const apiUrl = isProduction
-//   ? "https://navigator.smbn.ru/"
-//   : "https://msp.everpoint.ru/";
-const apiUrl = "https://msp.everpoint.ru/";
+const apiUrl = isProduction
+  ? "https://navigator.smbn.ru/"
+  : "https://msp.everpoint.ru/";
+
 
 const iconWidth = 40;
 const iconHeight = 49.6;
@@ -263,34 +263,6 @@ class Map {
         this.input.blur();
       }
     }
-  }
-
-  zoomTo(features) {
-    const ADJ_K = 1.2;
-
-    let xMin = Number.MAX_VALUE;
-    let yMin = Number.MAX_VALUE;
-    let xMax = Number.MIN_VALUE;
-    let yMax = Number.MIN_VALUE;
-    features.forEach(feature => {
-      xMin = Math.min(xMin, feature.bbox.xMin);
-      yMin = Math.min(yMin, feature.bbox.yMin);
-      xMax = Math.max(xMax, feature.bbox.xMax);
-      yMax = Math.max(yMax, feature.bbox.yMax);
-    });
-    console.info("--> ggwp", (xMin + xMax) / 2, (yMin + yMax) / 2);
-    const position = new Point(
-      [(xMin + xMax) / 2, (yMin + yMax) / 2],
-      this.map.crs,
-    );
-
-    // const resolutionX =
-    //   bbox.width / this._sp.painter.width * ADJ_K;
-    // const resolutionY =
-    //   bbox.height / this._sp.painter.height * ADJ_K;
-    // const resolution = Math.max(resolutionX, resolutionY, 1);
-    this.map.setResolution(8000);
-    this.map.setPosition(position);
   }
 
   renderNotification(text) {
